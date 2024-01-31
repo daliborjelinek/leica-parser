@@ -31,7 +31,7 @@
     </div>
   </div>
   <portal to="header-button">
-    <v-btn variant="outlined" :disabled="result === ''" color="success" @click="parse">download</v-btn>
+    <v-btn variant="outlined" :disabled="result === ''" color="success" @click="save(result,sourceFile[0].name+'_PARSED.txt')">download</v-btn>
     <v-btn :disabled="sourceFile === null || anchorsText === ''" class="ml-1" color="blue" @click="parse">parse</v-btn>
 
   </portal>
