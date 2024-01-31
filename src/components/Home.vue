@@ -8,31 +8,26 @@
       <v-data-table width="100%" :items-per-page="0" :items="changes">
         <template #bottom></template>
         <template #no-data>
-          <v-alert
-            type="info"
-            class="ma-3"
-            title="Instructions"
-            variant="tonal">
+          <v-alert type="info" class="ma-3" title="Instructions" variant="tonal">
             <p class="text-left mt-2">
             <ul>
               <li>1. insert source DFX file</li>
               <li>2. insert list of anchor names
-            (every name on new line in same order of measurement). You can use automatic generator by pressing magic wand in top left corner.</li>
-            <li>3. Press parse button</li>
-            <li>4. Press download button</li>
+                (every name on new line in same order of measurement). You can use automatic generator by pressing magic
+                wand in top left corner.</li>
+              <li>3. Press parse button</li>
+              <li>4. Press download button</li>
             </ul>
-              
-            
-            
-          </p>
+            </p>
           </v-alert>
-         </template>
+        </template>
       </v-data-table>
     </div>
   </div>
   <portal to="header-button">
-    <v-btn variant="outlined" :disabled="result === ''" color="success" @click="save(result,sourceFile[0].name+'_PARSED.txt')">download</v-btn>
-    <v-btn :disabled="sourceFile === null || anchorsText === ''" class="ml-1" color="blue" @click="parse">parse</v-btn>
+    <v-btn variant="outlined" :disabled="result === ''" color="success"
+      @click="save(result, sourceFile[0].name + '_PARSED.txt')">download</v-btn>
+    <v-btn :disabled="sourceFile.length === 0 || anchorsText === ''" class="ml-1" color="blue" @click="parse">parse</v-btn>
 
   </portal>
 
@@ -47,10 +42,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { store } from '/src/state/state'
 import { saveAs } from 'file-saver';
-const sourceFile = ref(null)
+const sourceFile = ref([])
 const anchorsText = ref("")
 const changes = ref([])
 const generator = ref({
@@ -66,7 +61,6 @@ function generate() {
   }
   store.drawer = false
 }
-
 
 async function readFileAsync(fileInput) {
   return new Promise((resolve, reject) => {
@@ -94,10 +88,10 @@ async function parse() {
   const anchors = anchorsText.value.split("\n")
   let text = await readFileAsync(sourceFile.value[0])
 
-  const hledanyVyraz = /ByLayer\r\n\S+\r\n\S+\r\n\S+\r\nAcDbText\r\n\S+\r\n(?<anchor>.+)/gmd
+  const pattern = /ByLayer\r\n\S+\r\n\S+\r\n\S+\r\nAcDbText\r\n\S+\r\n(?<anchor>.+)/gmd
   let match
   let counter = 0
-  while ((match = hledanyVyraz.exec(text)) && counter < anchors.length) {
+  while ((match = pattern.exec(text)) && counter < anchors.length) {
     const rep = {
       from: match.indices.groups.anchor[0],
       to: match.indices.groups.anchor[1],
@@ -105,7 +99,7 @@ async function parse() {
       new: anchors[counter],
     }
     counter++
-    hledanyVyraz.lastIndex = rep.from + rep.new.length
+    pattern.lastIndex = rep.from + rep.new.length
     text = replaceSubstring(text, rep.from, rep.to, rep.new)
     console.log(`${rep.old} was replaced by ${rep.new}`)
     changes.value.push({ index: counter, old: rep.old, new: rep.new })
@@ -126,6 +120,5 @@ function replaceSubstring(originalString, startIndex, endIndex, replacement) {
 .input {
   margin: 15px;
   min-width: 300px;
-
 }
 </style>
