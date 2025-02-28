@@ -3,7 +3,6 @@ import Components from 'unplugin-vue-components/vite'
 import Vue from '@vitejs/plugin-vue'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import ViteFonts from 'unplugin-fonts/vite'
-import { viteSingleFile } from "vite-plugin-singlefile"
 
 // Utilities
 import { defineConfig } from 'vite'
@@ -14,7 +13,7 @@ export default defineConfig({
   plugins: [
     Vue({
       template: { transformAssetUrls }
-    },viteSingleFile()),
+    }),
     // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
     Vuetify(),
     Components(),
