@@ -88,10 +88,11 @@ async function parse() {
   const anchors = anchorsText.value.split("\n")
   let text = await readFileAsync(sourceFile.value[0])
 
-  const pattern = /ByLayer\r\n\S+\r\n\S+\r\n\S+\r\nAcDbText\r\n\S+\r\n(?<anchor>.+)/gmd
+  const pattern = /ByLayer\r?\n\S+\r?\n\S+\r?\n\S+\r?\nAcDbText\r?\n\S+\r?\n(?<anchor>.+)\r?\n\S+\r?\n(?<x>.+)\r?\n\S+\r?\n(?<y>.+)\r?\n\S+\r?\n(?<z>.+)/gmd
   let match
   let counter = 0
   while ((match = pattern.exec(text)) && counter < anchors.length) {
+    console.log(match)
     const rep = {
       from: match.indices.groups.anchor[0],
       to: match.indices.groups.anchor[1],
@@ -102,10 +103,11 @@ async function parse() {
     pattern.lastIndex = rep.from + rep.new.length
     text = replaceSubstring(text, rep.from, rep.to, rep.new)
     console.log(`${rep.old} was replaced by ${rep.new}`)
-    changes.value.push({ index: counter, old: rep.old, new: rep.new })
+    changes.value.push({ index: counter, old: rep.old, new: rep.new, x: match.groups.x, y: match.groups.y, z: match.groups.z })
   }
   result.value = text
   //save(text,sourceFile.value[0].name+"_PARSED.txt")
+  console.log(changes)
 }
 
 function replaceSubstring(originalString, startIndex, endIndex, replacement) {
